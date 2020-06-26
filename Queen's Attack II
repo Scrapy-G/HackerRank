@@ -1,0 +1,138 @@
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+public class Solution {
+
+    // Complete the queensAttack function below.
+    /*This works by iterating through the list of obstacles,
+     *finding each one in any of the reachable directions and
+     *storing the reachable spaces between the closest ones
+    */
+    static int queensAttack(int n, int k, int r_q, int c_q, int[][] obstacles) {
+
+        //for closest obstacles in each direction
+        int topObsDist = n - r_q;
+        int bottomObsDist = r_q - 1;
+        int leftObsDist = c_q - 1;
+        int rightObsDist = n - c_q;    //total free spaces if there's no obstacle to the right
+        
+        int topLeftObsDist = topObsDist < leftObsDist ? topObsDist : leftObsDist;
+        int topRightObsDist = topObsDist < rightObsDist ? topObsDist : rightObsDist;
+        int bottomLeftObsDist = bottomObsDist < leftObsDist ? bottomObsDist : leftObsDist;
+        int bottomRightObsDist = bottomObsDist < rightObsDist ? bottomObsDist : rightObsDist;
+        
+        
+        //checking for closest obstacle
+        //to queen in each direction and
+        //storing distance
+        for(int[] obs: obstacles) {
+            
+            //obstacle in same row as queen
+            if(obs[0] == r_q) {    
+                
+                if(obs[1] < c_q) { //obstacle left of queen    
+                    int leftDist = c_q - obs[1] - 1;
+                    if(leftDist < leftObsDist) 
+                        leftObsDist = leftDist;
+                }else {    //obstacle right of queen
+                    int rightDist = obs[1] - c_q - 1;
+                    if(rightDist < rightObsDist) {
+                        rightObsDist = rightDist;
+                    }
+                }
+            }
+            
+            //obstacle in same column as queen
+            if(obs[1] == c_q) {
+                
+                if(obs[0] > r_q) {    //obstacle above queen
+                    int topDist = obs[0] - r_q - 1;
+                    if(topDist < topObsDist)
+                        topObsDist = topDist;
+                }else {    //obstacle below queen
+                    int bottomDist = r_q - obs[0] - 1;
+                    if(bottomDist < bottomObsDist)
+                        bottomObsDist = bottomDist;
+                }
+            }
+            
+            int r = obs[0] - r_q;
+            int c = obs[1] - c_q;    
+            int rDist = Math.abs(r) - 1; //amount of free spaces between obstacle and queen
+            if(Math.abs(r) == Math.abs(c)) { //obstacle is in diagonal of queen
+                if(c > 0) {
+                    if(r > 0) { //obstacle in top right diagonal
+                        if(rDist < topRightObsDist)
+                            topRightObsDist = rDist;
+                    }else{ //obstacle at bottom right
+                        if(rDist < bottomRightObsDist)
+                            bottomRightObsDist = rDist;
+                    }
+                }else {
+                    if(r > 0) {    //obstacle at top left
+                        if(rDist < topLeftObsDist)
+                            topLeftObsDist = rDist;
+                    }else {    //obstacle at bottom left
+                        if(rDist < bottomLeftObsDist)
+                            bottomLeftObsDist = rDist;
+                    }
+                }
+            }
+        }
+        
+        int totalSpaces = topObsDist + bottomObsDist + leftObsDist + rightObsDist
+                + topLeftObsDist + topRightObsDist + bottomLeftObsDist + bottomRightObsDist;
+        
+        return totalSpaces;       
+    }
+    
+    
+    
+    
+    
+    //down here is for scanning input
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        String[] nk = scanner.nextLine().split(" ");
+
+        int n = Integer.parseInt(nk[0]);
+
+        int k = Integer.parseInt(nk[1]);
+
+        String[] r_qC_q = scanner.nextLine().split(" ");
+
+        int r_q = Integer.parseInt(r_qC_q[0]);
+
+        int c_q = Integer.parseInt(r_qC_q[1]);
+
+        int[][] obstacles = new int[k][2];
+
+        for (int i = 0; i < k; i++) {
+            String[] obstaclesRowItems = scanner.nextLine().split(" ");
+            scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+            for (int j = 0; j < 2; j++) {
+                int obstaclesItem = Integer.parseInt(obstaclesRowItems[j]);
+                obstacles[i][j] = obstaclesItem;
+            }
+        }
+
+        int result = queensAttack(n, k, r_q, c_q, obstacles);
+
+        bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}
